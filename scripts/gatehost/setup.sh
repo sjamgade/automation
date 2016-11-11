@@ -11,4 +11,7 @@ lvcreate -L 10G -n gatevm gate
 qemu-img convert SLES12-SP2.qcow2 /dev/gate/gatevm
 popd
 
+virsh define gatevm.xml
+virsh start gatevm
+virsh autostart gatevm
 
