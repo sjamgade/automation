@@ -1,6 +1,7 @@
 #!/bin/sh
 # enable serial console
 sed -i -e 's/quiet splash=silent/console=tty console=ttyS0,115200/' /etc/default/grub
+sed -i -e 's/\(GRUB_TIMEOUT\)=.*/\1=3/' /etc/default/grub
 update-bootloader --refresh
 
 # set secure root password
