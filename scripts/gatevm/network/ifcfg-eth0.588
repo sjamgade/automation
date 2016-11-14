@@ -1,0 +1,2 @@
+# VLAN Interface for the d3 public network
+ETHERDEVICE='eth0'
