@@ -4,11 +4,18 @@ sed -i -e 's/quiet splash=silent/console=tty console=ttyS0,115200/' /etc/default
 sed -i -e 's/\(GRUB_TIMEOUT\)=.*/\1=3/' /etc/default/grub
 update-bootloader --refresh
 
+zypper ar http://smt-scc.nue.suse.com/repo/SUSE/Products/SUSE-Manager-Server/3.0/x86_64/product/ manager30
+zypper ar http://smt-scc.nue.suse.com/repo/SUSE/Updates/SUSE-Manager-Server/3.0/x86_64/update/ manager30up
+zypper -n in salt-ssh salt-master salt-minion
+
 # set secure root password
+#salt '*' shadow.set_password root '$6$oh/u8h6j$876vgM2dJsuwRtfzlf6JlwYkxlY64jGKL5KFYqR51MLQLaVHlJ.V7ESn9OWlVbcNagSR.P4ON6uSONs60.iYv0'
 sed -i -e 's#^root:.*#root:$6$oh/u8h6j$876vgM2dJsuwRtfzlf6JlwYkxlY64jGKL5KFYqR51MLQLaVHlJ.V7ESn9OWlVbcNagSR.P4ON6uSONs60.iYv0:17116::::::#' /etc/shadow
 
+#salt '*' pkg.install bridge-utils vlan
 zypper -n in bridge-utils vlan
 
+#salt '*' network.mod_hostname gatevm.cloud.suse.de
 echo gatevm.cloud.suse.de > /etc/HOSTNAME
 #salt '*' sysctl.persist net.ipv4.ip_forward 1
 echo "net.ipv4.ip_forward = 1
