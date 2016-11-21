@@ -20,9 +20,12 @@ pushd /tmp
 wget http://clouddata.cloud.suse.de/images/x86_64/SLES12-SP2.qcow2
 lvcreate -L 10G -n gatevm gate
 qemu-img convert SLES12-SP2.qcow2 /dev/gate/gatevm
+lvcreate -L 30G -n jenkins-tu-sle12 gate
 popd
+#TODO during start dd if=/dev/gate/jenkins-tu-sle12 of=/dev/shm/jenkins-tu-sle12 bs=64k
+#TODO make clean image - initial setup of image used ssh -C gate dd if=/dev/system/jenkins-tu-sle12 bs=64k | dd of=/dev/gate/jenkins-tu-sle12 bs=64k
 
-for vm in gatevm ; do
+for vm in gatevm jenkins-tu-sle12 ; do
   virsh define $vm.xml
   virsh start $vm
   virsh autostart $vm
