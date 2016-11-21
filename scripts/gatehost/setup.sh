@@ -22,9 +22,11 @@ lvcreate -L 10G -n gatevm gate
 qemu-img convert SLES12-SP2.qcow2 /dev/gate/gatevm
 popd
 
-virsh define gatevm.xml
-virsh start gatevm
-virsh autostart gatevm
+for vm in gatevm ; do
+  virsh define $vm.xml
+  virsh start $vm
+  virsh autostart $vm
+done
 
 ssh gatevm mkdir -p ~/.ssh/
 scp ~/.ssh/authorized_keys gatevm:.ssh/
