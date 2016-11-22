@@ -5,6 +5,7 @@ import itertools as it
 import os
 import re
 import string
+import time
 import xml.etree.ElementTree as ET
 
 import libvirt
@@ -381,3 +382,6 @@ def vm_start(args):
     dom = conn.lookupByName(vmname)
     print("booting {0} VM".format(vmname))
     dom.create()
+    # give tftp some time to load kernel+initrd before next instances
+    # block all CPUs https://bugzilla.suse.com/show_bug.cgi?id=1011656
+    time.sleep(5)
