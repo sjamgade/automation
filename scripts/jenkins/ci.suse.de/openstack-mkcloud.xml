@@ -543,12 +543,15 @@ fi
       <template>#${BUILD_NUMBER}: ${ENV,var="job_name"}</template>
     </org.jenkinsci.plugins.buildnamesetter.BuildNameSetter>
     <hudson.plugins.build__timeout.BuildTimeoutWrapper>
-      <timeoutMinutes>60</timeoutMinutes>
-      <failBuild>false</failBuild>
-      <writingDescription>job aborted due to 60 minutes of inactivity.</writingDescription>
-      <timeoutPercentage>0</timeoutPercentage>
-      <timeoutMinutesElasticDefault>3</timeoutMinutesElasticDefault>
-      <timeoutType>no-activity</timeoutType>
+      <strategy class="hudson.plugins.build_timeout.impl.NoActivityTimeOutStrategy">
+        <timeoutSecondsString>3600</timeoutSecondsString>
+      </strategy>
+      <operationList>
+        <hudson.plugins.build__timeout.operations.AbortOperation/>
+        <hudson.plugins.build__timeout.operations.WriteDescriptionOperation>
+          <description>Job aborted due to 60 minutes of inactivity.</description>
+        </hudson.plugins.build__timeout.operations.WriteDescriptionOperation>
+      </operationList>
     </hudson.plugins.build__timeout.BuildTimeoutWrapper>
   </buildWrappers>
 </project>
