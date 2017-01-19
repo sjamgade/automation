@@ -261,6 +261,7 @@ function setcloudnetvars
             vlan_fixed=758
             vlan_sdn=757
             want_ipmi=true
+            want_ipmi_dhcp=1
         ;;
         p2)
             net=$netp.171
