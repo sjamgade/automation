@@ -643,6 +643,7 @@
 
           perl -e "alarm 6*60*60 ; exec '${mkcloudwrapper} bash ${automationrepo}/scripts/mkcloud setuphost $(echo -n $MKCLOUDTARGET) ' ; print qq{$!\n} ; exit 127 " | tee $artifacts_dir/mkcloud_short_stdout.log
           ret=${PIPESTATUS[0]}
+          ${automationrepo}/scripts/timeit.py $artifacts_dir/mkcloud_short_stdout.log | tee $artifacts_dir/cistats.txt
           if [[ $ret != 0 ]] ; then
               if [[ $github_pr_sha ]] ; then
                 mkcloudgating_trap
