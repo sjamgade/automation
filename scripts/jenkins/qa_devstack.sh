@@ -113,6 +113,10 @@ TEMPEST_ALLOW_TENANT_ISOLATION=True
 
 ENABLED_SERVICES=c-api,c-bak,c-sch,c-vol,ceilometer-acentral,ceilometer-acompute,ceilometer-alarm-evaluator,ceilometer-alarm-notifier,ceilometer-anotification,ceilometer-api,ceilometer-collector,cinder,dstat,etcd3,g-api,g-reg,horizon,key,mysql,n-api,n-api-meta,n-cauth,n-cond,n-cpu,n-novnc,n-obj,n-sch,peakmem_tracker,placement-api,q-agt,q-dhcp,q-l3,q-meta,q-metering,q-svc,rabbit,s-account,s-container,s-object,s-proxy,tempest,tls-proxy
 
+enable_plugin ceilometer https://git.openstack.org/openstack/ceilometer stable/pike
+enable_plugin gnocchi https://github.com/gnocchixyz/gnocchi stable/4.1
+
+
 # use postgres instead of mysql as database
 disable_service mysql
 enable_service postgresql
@@ -122,8 +126,6 @@ enable_service postgresql
 # enable_service q-fwaas
 enable_service q-lbaas
 
-# for testing
-enable_service tempest
 EOF
 
     chown stack:stack -R $DEVSTACK_DIR
@@ -135,19 +137,46 @@ h_echo_header "Setup"
 h_setup_base_repos
 $zypper ref
 h_setup_screen
-trap 'killall swift-{proxy,object,container,account}-{server,updater,reconstructor,sync,reaper,replicator,auditor} 2>/dev/null || :' EXIT
 # setup extra disk if parameters given
 if [ -e "/dev/vdb" ]; then
     h_setup_extra_disk
 fi
+
 h_setup_devstack
+zypper in -y redis
+cp /etc/redis/default.conf.example /etc/redis/default.conf
+chown -R redis:redis /etc/redis/
+cat > redis.service << EOF
+[Unit]
+Description=Redis
+After=network.target
+PartOf=redis.target
+
+[Service]
+Type=simple
+User=redis
+Group=redis
+PrivateTmp=true
+PIDFile=/var/run/redis/default.pid
+ExecStart=/usr/sbin/redis-server /etc/redis/default.conf
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target redis.target
+EOF
+install -Dm -0644 redis.service /usr/lib/systemd/system/redis@default
+( watch "sed -i 's/restart_service redis$/restart_service redis@default/g' /opt/stack/ceilometer/devstack/plugin.sh" ) &
+( watch "easy_install-U setuptools" ) &
 h_echo_header "Run devstack"
 sudo -u stack -i <<EOF
 cd $DEVSTACK_DIR
+git checkout stable/pike
+sed -i 's/sudo pip install cryptography --no-binary :all:/echo 1234/g' /tmp/devstack/tools/install_prereqs.sh
 FORCE=yes ./stack.sh
 EOF
 h_echo_header "Run tempest"
 # FIXME(toabctl): enable the extensions for tempest
+exit 0
 $zypper in crudini
 crudini --set /opt/stack/tempest/etc/tempest.conf network-feature-enabled api_extensions "provider,security-group,dhcp_agent_scheduler,external-net,ext-gw-mode,binding,agent,quotas,l3_agent_scheduler,multi-provider,router,extra_dhcp_opt,allowed-address-pairs,extraroute,metering,fwaas,service-type,lbaas,lbaas_agent_scheduler"
 
