@@ -117,6 +117,10 @@ enable_plugin ceilometer https://git.openstack.org/openstack/ceilometer stable/p
 enable_plugin gnocchi https://github.com/gnocchixyz/gnocchi stable/4.1
 
 
+enable_plugin ceilometer https://git.openstack.org/openstack/ceilometer stable/pike
+enable_plugin gnocchi https://github.com/gnocchixyz/gnocchi stable/4.1
+
+
 # use postgres instead of mysql as database
 disable_service mysql
 enable_service postgresql
