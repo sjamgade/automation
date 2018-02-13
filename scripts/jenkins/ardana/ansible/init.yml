@@ -161,6 +161,25 @@
       src: input-model-firewall-rules.yml
       dest: /var/lib/ardana/openstack/my_cloud/definition/data/firewall_rules.yml
 
+  - name: make spark available for deployment
+    shell: >
+        python -c "
+            import yaml;
+            f = open('control_plane.yml');
+            data = yaml.load(f.read());
+            f.close();
+            data['control-planes'][0]['clusters'][0]['service-components'].append('spark');
+            f = open('control_plane.yml', 'w');
+            f.write(yaml.safe_dump(data, default_flow_style=False));
+            f.close();"
+    delegate_to: "{{ inventory_hostname }}"
+    become: true
+    become_user: ardana
+    args:
+      chdir: /var/lib/ardana//openstack/my_cloud/definition/data/
+    tags:
+      - create-ardana-input-model
+
   - name: Add my_cloud config to git
     shell: |
       git add -A
