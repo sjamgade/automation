@@ -187,6 +187,7 @@
               sed -e "s/^ip_address='\(.*\)', .*$/\1/" | \
               while read line; do echo "  - $line" >> ardana_net_vars.yml; done;
 
+          gerrit_ids=job_name
           for i in $(echo $gerrit_ids| tr ',' '\n'); do
               gerritpatches=${gerritpatches}"https://gerrit.suse.provo.cloud/changes/$i/revisions/current/patch?zip | zcat,"
               # the command at the end helps in defining patches below
