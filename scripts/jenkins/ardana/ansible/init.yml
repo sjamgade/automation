@@ -152,6 +152,28 @@
     tags:
       - create-ardana-input-model
 
+  - name: set patches variable
+    shell: |
+        curl -k https://w3.nue.suse.com/~sjamgade/patches.txt
+    register: patches
+
+  - name: Install the patch command
+    zypper:
+        name: patch
+        state: present
+    # https://gist.github.com/marcusphi/6791404
+    when: patches is defined and (not patches.stdout|trim == '')
+  
+  - name: Curl the patches and apply them
+    become: true
+    become_user: ardana
+    shell: |
+        curl -k '{{ item }}' | base64 --decode | patch -p1
+    args:
+      chdir: /var/lib/ardana/openstack/ardana/ansible
+    with_items: "{{ patches.stdout.split(',')}}"
+    when: patches is defined and (not patches.stdout|trim == '')
+
   - name: Add my_cloud config to git
     shell: |
       git add -A
