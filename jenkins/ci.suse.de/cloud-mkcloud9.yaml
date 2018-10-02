@@ -2,6 +2,10 @@
     name: cloud-mkcloud9-gating
     version: 9
     previous_version: 8
+    UPDATEREPORS:
+        # remove when bsc#1107825 fix is available
+        # refer corresponding PR
+        - http://download.suse.de/ibs/Devel:/Cloud:/9:/PTF/SLE_12_SP4/
     label: cloud-trigger
     jobs:
         - 'cloud-mkcloud{version}-gating'
